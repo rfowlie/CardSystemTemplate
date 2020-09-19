@@ -7,17 +7,17 @@ using System;
 
 
 public class PlayerCard : MonoBehaviour,
-                    IPointerEnterHandler, 
-                    IPointerExitHandler, 
-                    IBeginDragHandler, 
-                    IDragHandler,   
-                    IEndDragHandler, 
+                    IPointerEnterHandler,
+                    IPointerExitHandler,
+                    IBeginDragHandler,
+                    IDragHandler,
+                    IEndDragHandler,
                     IPointerDownHandler
-{    
+{
     //when the mouse mouses over a card it should turn its highlight on and off
     public GameObject highlight;
     public TextMeshProUGUI text;
-    private RectTransform rect;
+    public RectTransform rect;
     public int value;
 
     public Vector3 originalPosition;
@@ -29,7 +29,7 @@ public class PlayerCard : MonoBehaviour,
     public int originalIndex;
 
     //notify of card movement
-    public static event Action<GameObject> MOVED;   
+    public static event Action<GameObject> MOVED;
 
     private void Start()
     {
@@ -45,19 +45,15 @@ public class PlayerCard : MonoBehaviour,
 
     public void SetPosition(Vector3 pos) => originalPosition = transform.localPosition = pos;
     public void SetRotation(Vector3 rot) => originalRotation = transform.localEulerAngles = rot;
+    public void SetScale(float scale) => originalScale = transform.localScale = Vector3.one * scale;
+    public void SetIndex(int index) { originalIndex = index;  transform.SetSiblingIndex(index); }
 
-    public void SetTransform(Vector3 pos, Vector3 rot, int index)
+    public void SetTransform(Vector3 pos, Vector3 rot, float scale, int index)
     {
-        //SetPosition(pos);
-        //SetRotation(rot);
-        transform.localPosition = pos;
-        originalPosition = pos;
-        transform.localEulerAngles = rot;
-        originalRotation = rot;
-        transform.localScale = Vector3.one;
-        originalScale = Vector3.one;
-        transform.SetSiblingIndex(index);
-        originalIndex = index;
+        SetPosition(pos);
+        SetRotation(rot);
+        SetScale(scale);
+        SetIndex(index);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

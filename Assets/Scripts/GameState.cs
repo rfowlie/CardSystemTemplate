@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 
@@ -18,11 +19,58 @@ public class GameState : MonoBehaviour
     private HandController aiHandController;
     public Transform pile;
     public TextMeshProUGUI pileText;
-    public int handSize = 5;
+    public int pointsMax = 3;
+    public int handSizeMax = 5;
 
     public int pileCount = 0;
     public int pileMax = 10;
 
+    public TextMeshProUGUI playerPointsText;
+    private int playerPoints = 0;
+    public TextMeshProUGUI aiPointsText;
+    private int aiPoints = 0;
+
+    public Transform gameOverUI;
+
+
+    public void ResetGame()
+    {
+        //remove game over screen
+        gameOverUI.gameObject.SetActive(false);
+        
+        //remove all cards from active pool
+        for (int i = 0; i < activeCards.Count; i++)
+        {
+            deactiveCards.Enqueue(activeCards[i]);
+            activeCards[i].SetActive(false);
+        }
+
+        activeCards.Clear();
+
+        //clear hands
+        playerHandController.hand.Clear();
+        aiHandController.hand.Clear();  
+
+        //deal cards
+        for (int i = 0; i < handSizeMax; i++)
+        {
+            playerHandController.AddCard(GetCard());
+            aiHandController.AddCard(GetCard());
+        }
+
+        playerHandController.Position();
+        aiHandController.Position();
+
+        //set pile and points text
+        pileCount = 0;
+        pileText.text = pileCount.ToString();
+        playerPoints = 0;
+        aiPoints = 0;
+        playerPointsText.text = playerPoints.ToString();
+        aiPointsText.text = aiPoints.ToString();
+        isPlayerTurn = true;
+        CurrentState = State.PLAYER;
+    }
 
     //DEBUG
     private void Update()
@@ -53,35 +101,62 @@ public class GameState : MonoBehaviour
 
     private void Start()
     {
+        //Cursor.lockState = CursorLockMode.Confined; // keep confined in the game window
+
         playerHandController = playerHand.GetComponent<HandController>();
         aiHandController = aiHand.GetComponent<HandController>();
 
-        //deal cards
-        for (int i = 0; i < handSize; i++)
-        {
-            playerHandController.AddCard(GetCard());
-            aiHandController.AddCard(GetCard());
-        }
-
-        playerHandController.Position();
-        aiHandController.Position();
-
-        SetPile(0);
+        ResetGame();
     }
 
     //track pile value
     private void SetPile(int amount)
     {
         pileCount += amount;
-        if(pileCount > pileMax)
+        if(pileCount >= pileMax)
         {
             //MAKE A BUNCH OF SHIT HAPPEN HERERERERE
             //redraw cards for all players
             Debug.Log("Pile Maxed");
+
+            if(!isPlayerTurn)
+            {
+                playerPoints++;
+                playerPointsText.text = playerPoints.ToString();
+            }
+            else
+            {
+                aiPoints++;
+                aiPointsText.text = aiPoints.ToString();                
+            }
+
+            //check if game over
+            if(playerPoints >= pointsMax || aiPoints >= pointsMax) 
+            {
+                gameOverUI.gameObject.SetActive(true);
+                string winner = playerPoints >= pointsMax ? "Player" : "AI";
+                gameOverUI.GetComponentInChildren<TextMeshProUGUI>().text = "Game Over \n" + winner + " Wins";
+                CurrentState = State.GAMEOVER;
+                return;
+            }
+
             pileCount = 0;
+            //refill hands
+            for (int i = 0; i <= handSizeMax - (playerHandController.hand.Count - 1); i++)
+            {
+                playerHandController.AddCard(GetCard());
+                playerHandController.Position();
+            }
+            for (int i = 0; i <= handSizeMax - (aiHandController.hand.Count - 1); i++)
+            {
+                aiHandController.AddCard(GetCard());
+                aiHandController.Position();
+            }
         }
 
         pileText.text = pileCount.ToString();
+        isPlayerTurn = !isPlayerTurn;
+        CurrentState = isPlayerTurn ? State.PLAYER : State.AI;
     }
 
     //OBJECT POOL FOR CARDS
@@ -187,10 +262,7 @@ public class GameState : MonoBehaviour
         }
 
         //when get to pile, set inactive increment pile???
-        SetPile(card.GetComponent<PlayerCard>().value);
         RemoveCard(card);
-
-        isPlayerTurn = !isPlayerTurn;
-        CurrentState = isPlayerTurn ? State.PLAYER : State.AI;
+        SetPile(card.GetComponent<PlayerCard>().value);
     }
 }

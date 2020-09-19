@@ -32,4 +32,4 @@ public class GamePlayStatics : MonoBehaviour
     
 }
 
-public enum State { NONE, PLAYER, AI, ANIMATION, WAIT }
+public enum State { NONE, PLAYER, AI, ANIMATION, WAIT, GAMEOVER }
