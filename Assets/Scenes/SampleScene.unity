@@ -830,7 +830,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -350}
+  m_AnchoredPosition: {x: 0, y: -400}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &947415331
@@ -847,8 +847,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacingX: 60
   spacingY: -18
-  rotation: 6
-  scaling: 1.5
+  rotation: 5
+  scaling: 1.4
   maxCards: 7
   cardBack: 0
   hand: []
@@ -1094,7 +1094,7 @@ MonoBehaviour:
   aiHand: {fileID: 2030895265}
   pile: {fileID: 2059138887}
   pileText: {fileID: 2066768812}
-  pointsMax: 1
+  pointsMax: 3
   handSizeMax: 5
   pileCount: 0
   pileMax: 10
@@ -1103,8 +1103,8 @@ MonoBehaviour:
   gameOverUI: {fileID: 70067829}
   playerCardPool: {fileID: 1299613391}
   aiCardPool: {fileID: 1299613390}
-  aiWaitTime: 0.8
-  returnSpeed: 0.5
+  aiWaitTime: 0.5
+  returnSpeed: 0.8
 --- !u!4 &1299613388
 Transform:
   m_ObjectHideFlags: 0
@@ -1534,7 +1534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 350}
+  m_AnchoredPosition: {x: 0, y: 400}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2030895266
@@ -1566,8 +1566,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spacingX: 60
   spacingY: -18
-  rotation: 6
-  scaling: 1.5
+  rotation: 5
+  scaling: 1.4
   maxCards: 7
   cardBack: 1
   hand: []

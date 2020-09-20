@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class GameState : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     //hold global variables
     private GamePlayStatics gps;
@@ -102,6 +102,8 @@ public class GameState : MonoBehaviour
 
         //play random card...
         GameObject card = aiHandController.GetCard(Random.Range(0, aiHandController.hand.Count));
+
+        c = null;
         c = StartCoroutine(MoveToPile(card));
     }
     
@@ -172,8 +174,8 @@ public class GameState : MonoBehaviour
             {
                 //Debug.Log("Card in play");  
                 //remove card from playerHand card list
-                playerHandController.RemoveCard(card);
-                
+                playerHandController.RemoveCard(card);                
+
                 //call coroutine to move card to pile
                 c = null;
                 c = StartCoroutine(MoveToPile(card));
@@ -200,14 +202,35 @@ public class GameState : MonoBehaviour
         card.transform.eulerAngles = Vector3.zero;
         //get positions
         Vector3 currentPos = card.transform.localPosition;
-
-        //activate rotation animation
-        if(card.GetComponent<PlayerCard>().isCardBack) { card.GetComponent<Animator>().SetTrigger("Rotate"); }
-        
+        Vector3 currentRot = card.transform.localEulerAngles;
+        Vector3 endRot = new Vector3(0f, 180f, 0f);
+        float rotSpeed = 0.6f;
 
         float count = 0f;
+        while (count / returnSpeed < 0.3f)
+        {
+            //rotation
+            card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
+
+            //Zero because now child of parent
+            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / returnSpeed);
+            count += Time.deltaTime;
+            yield return null;
+        }
+
+        if(card.GetComponent<PlayerCard>().isCardBack)
+        {
+            card.GetComponent<PlayerCard>().FlipCard();
+        }
+
+        currentRot = new Vector3(0f, -90f, 0f); 
+        endRot = Vector3.zero;
+
         while (count < returnSpeed)
         {
+            //rotation
+            card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
+
             //Zero because now child of parent
             card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / returnSpeed);
             count += Time.deltaTime;

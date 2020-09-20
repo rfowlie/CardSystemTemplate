@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class AICard : MonoBehaviour
+public class AICard : Card
 {
-    public TextMeshProUGUI text;
-    private RectTransform rect;
+    public TextMeshProUGUI text;    
     public int value;
 
-    private void Start()
-    {
-        rect = GetComponent<RectTransform>();
-    }
     private void OnEnable()
     {
         //set values...

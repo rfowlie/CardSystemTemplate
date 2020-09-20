@@ -5,65 +5,24 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System;
 
-
-public class PlayerCard : MonoBehaviour,
-                    IPointerEnterHandler,
-                    IPointerExitHandler,
-                    IBeginDragHandler,
-                    IDragHandler,
-                    IEndDragHandler,
-                    IPointerDownHandler
+public class Card : MonoBehaviour
 {
-    //when the mouse mouses over a card it should turn its highlight on and off
     public GameObject cardFront;
     public GameObject cardBack;
-    public GameObject highlight;
-    public TextMeshProUGUI text;
-    public RectTransform rect;
-    public int value;
-
-    public Vector3 originalPosition;
-    public Vector2 inflatePosition;
-    public Vector3 originalRotation;
-    public Vector3 originalScale;
-    [Tooltip("How much scaleS increase you want to ADD to normal scale")]
-    public Vector3 inflateScale;
-    public int originalIndex;
 
     public bool isCardBack = false;
-
-    //notify of card movement
-    public static event Action<GameObject> MOVED;
-
-    
-    private void Start()
+    public void SetCardBack(bool b)
     {
-        rect = GetComponent<RectTransform>();
-    }
-
-    private void OnEnable()
-    {
-        //set values...
-        value = UnityEngine.Random.Range(1, 4);
-        text.text = value.ToString();
-    }
-
-    public void SetPosition(Vector3 pos) { originalPosition = pos; transform.localPosition = originalPosition; }
-    public void SetRotation(Vector3 rot) { Debug.Log("Rot: " + rot); originalRotation = rot;  Debug.Log("Orig: " + originalRotation); transform.localEulerAngles = originalRotation; }
-    public void SetScale(float scale) { originalScale = Vector3.one * scale; transform.localScale = originalScale; }
-    public void SetIndex(int index) { originalIndex = index;  transform.SetSiblingIndex(index); }
-    public void SetCardBack(bool b) 
-    { 
         isCardBack = b;
         if (b) { cardBack.transform.SetAsLastSibling(); }
         else { cardBack.transform.SetAsFirstSibling(); }
     }
-
     public void FlipCard()
     {
         SetCardBack(!isCardBack);
     }
 
+    //hands need to be able to set all these aspects of the cards position
     public void SetCard(Vector3 pos, Vector3 rot, float scale, int index, bool isCardBack)
     {
         SetPosition(pos);
@@ -72,39 +31,85 @@ public class PlayerCard : MonoBehaviour,
         SetIndex(index);
         SetCardBack(isCardBack);
     }
+    //abstract extra needs in here
+    protected virtual void SetPosition(Vector3 pos) { transform.localPosition = pos; }
+    protected virtual void SetRotation(Vector3 rot) { transform.localEulerAngles = rot; }
+    protected virtual void SetScale(float scale) { transform.localScale = Vector3.one * scale; }
+    protected virtual void SetIndex(int index) { transform.SetSiblingIndex(index); }
+}
 
-    
-    
+public class PlayerCard : Card,
+                    IPointerEnterHandler,
+                    IPointerExitHandler,
+                    IBeginDragHandler,
+                    IDragHandler,
+                    IEndDragHandler,
+                    IPointerDownHandler
+{   
+    public GameObject highlight;
+    public TextMeshProUGUI text;
+    public int value;
+
+    public Vector3 originalPosition;
+    public Vector3 inflatePosition;
+    public Vector3 originalRotation;
+    public Vector3 originalScale;
+    public Vector3 inflateScale;
+    public int originalIndex;
+
+    //notify of card movement, player
+    public static event Action<GameObject> MOVED;
+   
+    private void OnEnable()
+    {        
+        //set values...
+        value = UnityEngine.Random.Range(1, 4);
+        text.text = value.ToString();
+    }
+
+    protected override void SetPosition(Vector3 pos) { originalPosition = pos; transform.localPosition = originalPosition; }
+    protected override void SetRotation(Vector3 rot) { originalRotation = rot; transform.localEulerAngles = originalRotation; }
+    protected override void SetScale(float scale) { originalScale = Vector3.one * scale; transform.localScale = originalScale; }
+    protected override void SetIndex(int index) { originalIndex = index;  transform.SetSiblingIndex(index); }  
 
     //UI INTERFACE
     public void OnPointerEnter(PointerEventData eventData)
     {
-        highlight.SetActive(true);
-        //increase size, maybe adjust position
-        transform.localScale += inflateScale;
-        rect.anchoredPosition += inflatePosition;
-        transform.SetAsLastSibling();
+        if(!isDrag)
+        {
+            highlight.SetActive(true);
+            transform.localScale += inflateScale;
+            transform.localPosition += inflatePosition;
+            transform.SetAsLastSibling();
+        }        
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        highlight.SetActive(false);
-        transform.localPosition = originalPosition;
-        transform.localScale = originalScale;
-        transform.SetSiblingIndex(originalIndex);
+        if(!isDrag)
+        {
+            highlight.SetActive(false);
+            transform.localPosition = originalPosition;
+            transform.localScale = originalScale;
+            transform.SetSiblingIndex(originalIndex);
+        }        
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        rect.eulerAngles = Vector3.zero;
+        transform.eulerAngles = Vector3.zero;
         canvasScaleFactor = GamePlayStatics.CANVASSCALEFACTOR;
         Debug.Log("CSF: " + canvasScaleFactor);
+        isDrag = true;
     }
 
+    private bool isDrag = false;
     private float canvasScaleFactor;
     public void OnDrag(PointerEventData eventData)
     {
-        rect.anchoredPosition += eventData.delta / canvasScaleFactor;
+        Vector2 move = eventData.delta / canvasScaleFactor;
+        transform.localPosition += new Vector3(move.x, move.y, 0f);
+        //GetComponent<RectTransform>().anchoredPosition += eventData.delta / canvasScaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -112,14 +117,13 @@ public class PlayerCard : MonoBehaviour,
         //also turn off highlights
         highlight.SetActive(false);
         transform.localScale = originalScale;
-        rect.eulerAngles = originalRotation;
+        transform.localEulerAngles = originalRotation;
         MOVED(gameObject);
 
-        //c = null;
-        //c = StartCoroutine(ReturnToOriginal());
+        isDrag = false;
     }
     public void OnPointerDown(PointerEventData eventData)
     {
-        rect.SetAsLastSibling();
+        transform.SetAsLastSibling();
     }
 }
