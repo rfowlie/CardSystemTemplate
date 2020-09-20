@@ -13,16 +13,18 @@ public class HandController : MonoBehaviour
     public float scaling = 1f;
     public int maxCards = 7;
 
+    public bool cardBack = false;
+
     //set number of cards into card list
     public List<GameObject> hand = new List<GameObject>();
 
     //position the cards into the correct positions based on number and spacing
-    public void Position()
+    private void Position()
     {
         if(hand.Count < 1) { return; }
         if(hand.Count == 1)
         {
-            hand[0].GetComponent<PlayerCard>().SetTransform(Vector3.zero, Vector3.zero, scaling, 0);
+            hand[0].GetComponent<PlayerCard>().SetCard(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
             return;
         }
 
@@ -31,13 +33,14 @@ public class HandController : MonoBehaviour
         float width = numberOfCards * spacingX;
         float widthSpacing = numberOfCards == 1 ? 0 : width / (numberOfCards - 1);
         float widthStart = (width / 2f) - width;
+        
 
         for (int i = 0; i < hand.Count; i++)
         {
             //set transform
             Vector3 pos = new Vector3(widthStart + widthSpacing * i, Mathf.Abs(i - middleCard) * spacingY, 0f);
             Vector3 rot = new Vector3(0f, 0f, (middleCard - i) * rotation);
-            hand[i].GetComponent<PlayerCard>().SetTransform(pos, rot, scaling, i);
+            hand[i].GetComponent<PlayerCard>().SetCard(pos, rot, scaling, i, cardBack);
         }
     }
 
@@ -65,17 +68,32 @@ public class HandController : MonoBehaviour
         Position();
     }    
 
+    //add multiple
+    public void AddCards(GameObject[] cards)
+    {
+        for (int i = 0; i < cards.Length; i++)
+        {
+            hand.Add(cards[i]);
+            cards[i].transform.SetParent(transform);
+            cards[i].transform.SetAsLastSibling();
+        }
+
+        Position();
+    }
     
+    //add one
     public void AddCard(GameObject card)
-    {        
+    {
         hand.Add(card);
         card.transform.SetParent(transform);
         card.transform.SetAsLastSibling();
+        Position();
     }
 
     public void RemoveCard(GameObject card)
     {
         hand.Remove(card);
+        Position();
     }
 
     public void RemoveCardAtIndex(int index = 0)
@@ -83,10 +101,8 @@ public class HandController : MonoBehaviour
         RemoveCard(hand[index]);
     }
 
-
-    //Get ref to card at index, remove from hand and return to caller
-  
-    public GameObject PlayCard(int index)
+    //get card at hand index
+    public GameObject GetCard(int index)
     {
         GameObject card = hand[index];
         hand.RemoveAt(index);

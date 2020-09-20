@@ -15,6 +15,8 @@ public class PlayerCard : MonoBehaviour,
                     IPointerDownHandler
 {
     //when the mouse mouses over a card it should turn its highlight on and off
+    public GameObject cardFront;
+    public GameObject cardBack;
     public GameObject highlight;
     public TextMeshProUGUI text;
     public RectTransform rect;
@@ -28,9 +30,12 @@ public class PlayerCard : MonoBehaviour,
     public Vector3 inflateScale;
     public int originalIndex;
 
+    public bool isCardBack = false;
+
     //notify of card movement
     public static event Action<GameObject> MOVED;
 
+    
     private void Start()
     {
         rect = GetComponent<RectTransform>();
@@ -43,19 +48,35 @@ public class PlayerCard : MonoBehaviour,
         text.text = value.ToString();
     }
 
-    public void SetPosition(Vector3 pos) => originalPosition = transform.localPosition = pos;
-    public void SetRotation(Vector3 rot) => originalRotation = transform.localEulerAngles = rot;
-    public void SetScale(float scale) => originalScale = transform.localScale = Vector3.one * scale;
+    public void SetPosition(Vector3 pos) { originalPosition = pos; transform.localPosition = originalPosition; }
+    public void SetRotation(Vector3 rot) { Debug.Log("Rot: " + rot); originalRotation = rot;  Debug.Log("Orig: " + originalRotation); transform.localEulerAngles = originalRotation; }
+    public void SetScale(float scale) { originalScale = Vector3.one * scale; transform.localScale = originalScale; }
     public void SetIndex(int index) { originalIndex = index;  transform.SetSiblingIndex(index); }
+    public void SetCardBack(bool b) 
+    { 
+        isCardBack = b;
+        if (b) { cardBack.transform.SetAsLastSibling(); }
+        else { cardBack.transform.SetAsFirstSibling(); }
+    }
 
-    public void SetTransform(Vector3 pos, Vector3 rot, float scale, int index)
+    public void FlipCard()
+    {
+        SetCardBack(!isCardBack);
+    }
+
+    public void SetCard(Vector3 pos, Vector3 rot, float scale, int index, bool isCardBack)
     {
         SetPosition(pos);
         SetRotation(rot);
         SetScale(scale);
         SetIndex(index);
+        SetCardBack(isCardBack);
     }
 
+    
+    
+
+    //UI INTERFACE
     public void OnPointerEnter(PointerEventData eventData)
     {
         highlight.SetActive(true);

@@ -850,6 +850,7 @@ MonoBehaviour:
   rotation: 6
   scaling: 1.5
   maxCards: 7
+  cardBack: 0
   hand: []
 --- !u!114 &947415332
 MonoBehaviour:
@@ -1065,6 +1066,8 @@ GameObject:
   - component: {fileID: 1299613388}
   - component: {fileID: 1299613389}
   - component: {fileID: 1299613387}
+  - component: {fileID: 1299613391}
+  - component: {fileID: 1299613390}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1098,8 +1101,8 @@ MonoBehaviour:
   playerPointsText: {fileID: 2116222998}
   aiPointsText: {fileID: 49029451}
   gameOverUI: {fileID: 70067829}
-  cardPrefab: {fileID: 5502196415639929951, guid: b7c4855876b58094d8f1d90f52f9263c, type: 3}
-  cardCount: 0
+  playerCardPool: {fileID: 1299613391}
+  aiCardPool: {fileID: 1299613390}
   aiWaitTime: 0.8
   returnSpeed: 0.5
 --- !u!4 &1299613388
@@ -1129,6 +1132,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Canvas: {fileID: 956359313}
+--- !u!114 &1299613390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299613386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b401c58821a1574a9420802e393d1ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolObject: {fileID: 5502196415639929951, guid: b7c4855876b58094d8f1d90f52f9263c, type: 3}
+  objectCount: 0
+--- !u!114 &1299613391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299613386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b401c58821a1574a9420802e393d1ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolObject: {fileID: 5502196415639929951, guid: b7c4855876b58094d8f1d90f52f9263c, type: 3}
+  objectCount: 0
 --- !u!1 &1382792122
 GameObject:
   m_ObjectHideFlags: 0
@@ -1538,6 +1569,7 @@ MonoBehaviour:
   rotation: 6
   scaling: 1.5
   maxCards: 7
+  cardBack: 1
   hand: []
 --- !u!1 &2059138886
 GameObject:

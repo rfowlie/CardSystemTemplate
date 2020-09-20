@@ -32,72 +32,8 @@ public class GameState : MonoBehaviour
 
     public Transform gameOverUI;
 
-
-    public void ResetGame()
-    {
-        //remove game over screen
-        gameOverUI.gameObject.SetActive(false);
-        
-        //remove all cards from active pool
-        for (int i = 0; i < activeCards.Count; i++)
-        {
-            deactiveCards.Enqueue(activeCards[i]);
-            activeCards[i].SetActive(false);
-        }
-
-        activeCards.Clear();
-
-        //clear hands
-        playerHandController.hand.Clear();
-        aiHandController.hand.Clear();  
-
-        //deal cards
-        for (int i = 0; i < handSizeMax; i++)
-        {
-            playerHandController.AddCard(GetCard());
-            aiHandController.AddCard(GetCard());
-        }
-
-        playerHandController.Position();
-        aiHandController.Position();
-
-        //set pile and points text
-        pileCount = 0;
-        pileText.text = pileCount.ToString();
-        playerPoints = 0;
-        aiPoints = 0;
-        playerPointsText.text = playerPoints.ToString();
-        aiPointsText.text = aiPoints.ToString();
-        isPlayerTurn = true;
-        CurrentState = State.PLAYER;
-    }
-
-    //DEBUG
-    private void Update()
-    {
-        //test
-        if (Input.GetKeyUp(KeyCode.Z))
-        {
-            playerHandController.AddCard(GetCard());
-            playerHandController.Position();
-        }
-        
-        if(CurrentState == State.AI)
-        {
-            CurrentState = State.WAIT;
-            c = null;
-            c = StartCoroutine(AIWait(aiWaitTime));
-        }
-    }
-
-    IEnumerator AIWait(float waitTime)
-    {
-        yield return new WaitForSecondsRealtime(waitTime);
-
-        GameObject card = aiHandController.PlayCard(Random.Range(0, aiHandController.hand.Count));
-        c = StartCoroutine(MoveToPile(card));
-    }
-
+    public ObjectPool playerCardPool;
+    public ObjectPool aiCardPool;
 
     private void Start()
     {
@@ -109,14 +45,73 @@ public class GameState : MonoBehaviour
         ResetGame();
     }
 
+
+    public void ResetGame()
+    {
+        //remove game over screen
+        gameOverUI.gameObject.SetActive(false);
+
+        playerCardPool.ReturnAll();
+        aiCardPool.ReturnAll();
+
+        //clear hands
+        playerHandController.hand.Clear();
+        aiHandController.hand.Clear();
+
+        GameObject[] p = new GameObject[handSizeMax];
+        GameObject[] a = new GameObject[handSizeMax];
+        //deal cards
+        for (int i = 0; i < handSizeMax; i++)
+        {
+            p[i] = playerCardPool.Get();
+            a[i] = aiCardPool.Get();
+        }
+
+        playerHandController.AddCards(p);
+        aiHandController.AddCards(a);
+
+        //set pile and points text
+        pileCount = 0;
+        pileText.text = pileCount.ToString();
+        playerPoints = 0;
+        playerPointsText.text = playerPoints.ToString();
+        aiPoints = 0;
+        aiPointsText.text = aiPoints.ToString();
+
+        isPlayerTurn = true;
+        CurrentState = State.PLAYER;
+    }
+    
+    private void Update()
+    {       
+        //AI for now
+        if(CurrentState == State.AI)
+        {
+            CurrentState = State.WAIT;
+            c = null;
+            c = StartCoroutine(AITurn(aiWaitTime));
+        }
+    }
+
+    public float aiWaitTime = 0.6f;
+    //AI action
+    IEnumerator AITurn(float waitTime)
+    {
+        //pause before playing card to appear thinking
+        yield return new WaitForSecondsRealtime(waitTime);
+
+        //play random card...
+        GameObject card = aiHandController.GetCard(Random.Range(0, aiHandController.hand.Count));
+        c = StartCoroutine(MoveToPile(card));
+    }
+    
+
     //track pile value
     private void SetPile(int amount)
     {
         pileCount += amount;
         if(pileCount >= pileMax)
         {
-            //MAKE A BUNCH OF SHIT HAPPEN HERERERERE
-            //redraw cards for all players
             Debug.Log("Pile Maxed");
 
             if(!isPlayerTurn)
@@ -144,61 +139,19 @@ public class GameState : MonoBehaviour
             //refill hands
             for (int i = 0; i <= handSizeMax - (playerHandController.hand.Count - 1); i++)
             {
-                playerHandController.AddCard(GetCard());
-                playerHandController.Position();
+                playerHandController.AddCard(playerCardPool.Get());
             }
             for (int i = 0; i <= handSizeMax - (aiHandController.hand.Count - 1); i++)
             {
-                aiHandController.AddCard(GetCard());
-                aiHandController.Position();
+                aiHandController.AddCard(aiCardPool.Get());
             }
         }
 
         pileText.text = pileCount.ToString();
         isPlayerTurn = !isPlayerTurn;
         CurrentState = isPlayerTurn ? State.PLAYER : State.AI;
-    }
-
-    //OBJECT POOL FOR CARDS
-    public GameObject cardPrefab;
-    private List<GameObject> activeCards = new List<GameObject>();
-    private Queue<GameObject> deactiveCards = new Queue<GameObject>();
+    }    
     
-    private GameObject GetCard()
-    {
-        if(deactiveCards.Count > 0)
-        {
-            GameObject o = deactiveCards.Dequeue();
-            activeCards.Add(o);
-            o.SetActive(true);
-            return o;
-        }
-
-        GameObject newTemp = InstantiateCard();
-        activeCards.Add(newTemp);
-        return newTemp;
-    }
-    private void RemoveCard(GameObject card)
-    {
-        if (!activeCards.Contains(card))
-        {
-            Debug.LogError("Card to be removed not in pool");
-            return;
-        }
-
-        deactiveCards.Enqueue(card);
-        activeCards.Remove(card);
-        card.SetActive(false);
-    }
-
-    public int cardCount = 0;
-    private GameObject InstantiateCard()
-    {
-        GameObject temp = Instantiate(cardPrefab);
-        //temp debug
-        temp.name = cardCount++.ToString();
-        return temp;
-    }
 
     //check if card is InPlay or should go back to hand    
     private bool CheckInPlay(GameObject card)
@@ -217,11 +170,9 @@ public class GameState : MonoBehaviour
             //Debug.Log("Card Moved");
             if(CurrentState == State.PLAYER && CheckInPlay(card))
             {
-                //Debug.Log("Card in play");                
-
+                //Debug.Log("Card in play");  
                 //remove card from playerHand card list
                 playerHandController.RemoveCard(card);
-                playerHandController.Position();
                 
                 //call coroutine to move card to pile
                 c = null;
@@ -235,7 +186,6 @@ public class GameState : MonoBehaviour
         };
     }
 
-    public float aiWaitTime = 1f;
     public float returnSpeed = 0.5f;
     private Coroutine c = null;
     IEnumerator MoveToPile(GameObject card)
@@ -248,9 +198,12 @@ public class GameState : MonoBehaviour
         card.transform.SetAsLastSibling();
         //set rotation to normal
         card.transform.eulerAngles = Vector3.zero;
-
         //get positions
-        Vector3 currentPos = card.transform.localPosition;        
+        Vector3 currentPos = card.transform.localPosition;
+
+        //activate rotation animation
+        if(card.GetComponent<PlayerCard>().isCardBack) { card.GetComponent<Animator>().SetTrigger("Rotate"); }
+        
 
         float count = 0f;
         while (count < returnSpeed)
@@ -262,7 +215,9 @@ public class GameState : MonoBehaviour
         }
 
         //when get to pile, set inactive increment pile???
-        RemoveCard(card);
+        if(isPlayerTurn) { playerCardPool.Return(card); }
+        else { aiCardPool.Return(card); }        
+        
         SetPile(card.GetComponent<PlayerCard>().value);
     }
 }
