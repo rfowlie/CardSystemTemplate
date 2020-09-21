@@ -24,7 +24,7 @@ public class HandController : MonoBehaviour
         if(hand.Count < 1) { return; }
         if(hand.Count == 1)
         {
-            hand[0].GetComponent<PlayerCard>().SetCard(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
+            hand[0].GetComponent<Abstract_Card>().SetCard(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
             return;
         }
 
@@ -40,12 +40,12 @@ public class HandController : MonoBehaviour
             //set transform
             Vector3 pos = new Vector3(widthStart + widthSpacing * i, Mathf.Abs(i - middleCard) * spacingY, 0f);
             Vector3 rot = new Vector3(0f, 0f, (middleCard - i) * rotation);
-            hand[i].GetComponent<PlayerCard>().SetCard(pos, rot, scaling, i, cardBack);
+            hand[i].GetComponent<Abstract_Card>().SetCard(pos, rot, scaling, i, cardBack);
         }
     }
 
+    //UNFORTUNATELY PUBLIC AS GAMEMANAGER HAS TO CHECK IF PLAYER TURN...
     //adjust the order of the cards when one is moved in hand
-    //SHOULD SET IT UP SO IT DOESN'T NEED THE CARD, JUST CHECK CURRENT CARDS
     public void Reposition(GameObject card)
     {
         //Debug.Log("Reposition");
@@ -68,6 +68,15 @@ public class HandController : MonoBehaviour
         Position();
     }    
 
+    //add one
+    public void AddCard(GameObject card)
+    {
+        hand.Add(card);
+        card.transform.SetParent(transform);
+        card.transform.SetAsLastSibling();
+        Position();
+    }
+
     //add multiple
     public void AddCards(GameObject[] cards)
     {
@@ -81,21 +90,14 @@ public class HandController : MonoBehaviour
         Position();
     }
     
-    //add one
-    public void AddCard(GameObject card)
-    {
-        hand.Add(card);
-        card.transform.SetParent(transform);
-        card.transform.SetAsLastSibling();
-        Position();
-    }
-
+    //remove card from hand
     public void RemoveCard(GameObject card)
     {
         hand.Remove(card);
         Position();
     }
 
+    //remove card based on index
     public void RemoveCardAtIndex(int index = 0)
     {
         RemoveCard(hand[index]);

@@ -5,35 +5,62 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class GameManager : MonoBehaviour
+public class GameManager_10Point : MonoBehaviour
 {
     //hold global variables
     private GamePlayStatics gps;
+    [Header("Game State")]
     public State CurrentState = State.PLAYER;
     public bool isPlayerTurn = true;
-
+    [Space]
+    [Header("Game")]
     public Canvas canvas;
-    public Transform playerHand;
-    private HandController playerHandController;
-    public Transform aiHand;
-    private HandController aiHandController;
     public Transform pile;
     public TextMeshProUGUI pileText;
     public int pointsMax = 3;
     public int handSizeMax = 5;
-
-    public int pileCount = 0;
+    private int pileCount = 0;
     public int pileMax = 10;
-
+    public float moveToPileSpeed = 0.5f;
+    public Transform gameOverUI;
+    [Space]
+    [Header("Player")]
+    public Transform playerHand;
+    private HandController playerHandController;
     public TextMeshProUGUI playerPointsText;
     private int playerPoints = 0;
+    public ObjectPool playerCardPool;
+    [Space]
+    [Header("AI")]
+    public Transform aiHand;
+    private HandController aiHandController;
     public TextMeshProUGUI aiPointsText;
     private int aiPoints = 0;
-
-    public Transform gameOverUI;
-
-    public ObjectPool playerCardPool;
     public ObjectPool aiCardPool;
+    public float aiWaitTime = 0.6f;
+
+
+
+    private void OnEnable()
+    {
+        PlayerCard_10Point.MOVED += (GameObject card) =>
+        {
+            if (CurrentState == State.PLAYER && CheckInPlay(card))
+            {
+                //remove card from playerHand card list
+                playerHandController.RemoveCard(card);
+
+                //call coroutine to move card to pile
+                c = null;
+                c = StartCoroutine(MoveToPile(card));
+            }
+            else
+            {
+                //not turn or not in play just reposition that card
+                playerHandController.Reposition(card);
+            }
+        };
+    }
 
     private void Start()
     {
@@ -44,7 +71,16 @@ public class GameManager : MonoBehaviour
 
         ResetGame();
     }
-
+    private void Update()
+    {
+        //AI for now
+        if (CurrentState == State.AI)
+        {
+            CurrentState = State.WAIT;
+            c = null;
+            c = StartCoroutine(AITurn(aiWaitTime));
+        }
+    }
 
     public void ResetGame()
     {
@@ -80,20 +116,9 @@ public class GameManager : MonoBehaviour
 
         isPlayerTurn = true;
         CurrentState = State.PLAYER;
-    }
-    
-    private void Update()
-    {       
-        //AI for now
-        if(CurrentState == State.AI)
-        {
-            CurrentState = State.WAIT;
-            c = null;
-            c = StartCoroutine(AITurn(aiWaitTime));
-        }
-    }
-
-    public float aiWaitTime = 0.6f;
+    }  
+   
+        
     //AI action
     IEnumerator AITurn(float waitTime)
     {
@@ -107,16 +132,16 @@ public class GameManager : MonoBehaviour
         c = StartCoroutine(MoveToPile(card));
     }
     
-
-    //track pile value
-    private void SetPile(int amount)
+    //update the piles value as well as points values
+    private void UpdatePile(int amount)
     {
         pileCount += amount;
-        if(pileCount >= pileMax)
+        if (pileCount >= pileMax)
         {
-            Debug.Log("Pile Maxed");
+            pileCount = 0;
+            RefillHands();
 
-            if(!isPlayerTurn)
+            if (!isPlayerTurn)
             {
                 playerPoints++;
                 playerPointsText.text = playerPoints.ToString();
@@ -124,37 +149,49 @@ public class GameManager : MonoBehaviour
             else
             {
                 aiPoints++;
-                aiPointsText.text = aiPoints.ToString();                
-            }
-
-            //check if game over
-            if(playerPoints >= pointsMax || aiPoints >= pointsMax) 
-            {
-                gameOverUI.gameObject.SetActive(true);
-                string winner = playerPoints >= pointsMax ? "Player" : "AI";
-                gameOverUI.GetComponentInChildren<TextMeshProUGUI>().text = "Game Over \n" + winner + " Wins";
-                CurrentState = State.GAMEOVER;
-                return;
-            }
-
-            pileCount = 0;
-            //refill hands
-            for (int i = 0; i <= handSizeMax - (playerHandController.hand.Count - 1); i++)
-            {
-                playerHandController.AddCard(playerCardPool.Get());
-            }
-            for (int i = 0; i <= handSizeMax - (aiHandController.hand.Count - 1); i++)
-            {
-                aiHandController.AddCard(aiCardPool.Get());
+                aiPointsText.text = aiPoints.ToString();
             }
         }
 
         pileText.text = pileCount.ToString();
-        isPlayerTurn = !isPlayerTurn;
-        CurrentState = isPlayerTurn ? State.PLAYER : State.AI;
-    }    
-    
+    }
 
+    //check whether game over or move to next state
+    private void UpdateGameState()
+    {
+        if (playerPoints >= pointsMax || aiPoints >= pointsMax)
+        {
+            gameOverUI.gameObject.SetActive(true);
+            string winner = playerPoints >= pointsMax ? "Player" : "AI";
+            gameOverUI.GetComponentInChildren<TextMeshProUGUI>().text = "Game Over \n" + winner + " Wins";
+            CurrentState = State.GAMEOVER;
+        }
+        else
+        {
+            isPlayerTurn = !isPlayerTurn;
+            CurrentState = isPlayerTurn ? State.PLAYER : State.AI;
+        }
+    }
+
+    //add cards to hands till at max size
+    private void RefillHands()
+    {
+        List<GameObject> temp = new List<GameObject>();
+        //refill hands
+        for (int i = 0; i < handSizeMax - (playerHandController.hand.Count); i++)
+        {
+            temp.Add(playerCardPool.Get());
+        }
+        playerHandController.AddCards(temp.ToArray());
+        temp.Clear();
+        for (int i = 0; i < handSizeMax - (aiHandController.hand.Count); i++)
+        {
+            temp.Add(aiCardPool.Get());
+        }
+        aiHandController.AddCards(temp.ToArray());
+        temp.Clear();
+    }
+    
     //check if card is InPlay or should go back to hand    
     private bool CheckInPlay(GameObject card)
     {
@@ -165,30 +202,8 @@ public class GameManager : MonoBehaviour
         return c > Mathf.Abs(p - ph) / 2f;
     }
 
-    private void OnEnable()
-    {
-        PlayerCard.MOVED += (GameObject card) =>
-        {
-            //Debug.Log("Card Moved");
-            if(CurrentState == State.PLAYER && CheckInPlay(card))
-            {
-                //Debug.Log("Card in play");  
-                //remove card from playerHand card list
-                playerHandController.RemoveCard(card);                
 
-                //call coroutine to move card to pile
-                c = null;
-                c = StartCoroutine(MoveToPile(card));
-            }
-            else
-            {
-                //Debug.Log("Reposition cards");
-                playerHandController.Reposition(card);
-            }
-        };
-    }
-
-    public float returnSpeed = 0.5f;
+    //AWKWARD RIGHT NOW AS JUST FIGURING IT OUT    
     private Coroutine c = null;
     IEnumerator MoveToPile(GameObject card)
     {
@@ -207,32 +222,32 @@ public class GameManager : MonoBehaviour
         float rotSpeed = 0.6f;
 
         float count = 0f;
-        while (count / returnSpeed < 0.3f)
+        while (count / moveToPileSpeed < 0.3f)
         {
             //rotation
             card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
 
             //Zero because now child of parent
-            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / returnSpeed);
+            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
             count += Time.deltaTime;
             yield return null;
         }
 
-        if(card.GetComponent<PlayerCard>().isCardBack)
+        if(card.GetComponent<Abstract_Card>().isCardBack)
         {
-            card.GetComponent<PlayerCard>().FlipCard();
+            card.GetComponent<Abstract_Card>().FlipCard();
         }
 
         currentRot = new Vector3(0f, -90f, 0f); 
         endRot = Vector3.zero;
 
-        while (count < returnSpeed)
+        while (count < moveToPileSpeed)
         {
             //rotation
             card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
 
             //Zero because now child of parent
-            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / returnSpeed);
+            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
             count += Time.deltaTime;
             yield return null;
         }
@@ -241,6 +256,7 @@ public class GameManager : MonoBehaviour
         if(isPlayerTurn) { playerCardPool.Return(card); }
         else { aiCardPool.Return(card); }        
         
-        SetPile(card.GetComponent<PlayerCard>().value);
+        UpdatePile(card.GetComponent<Abstract_Card_10Point>().value);
+        UpdateGameState();
     }
 }

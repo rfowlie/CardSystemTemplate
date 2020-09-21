@@ -5,40 +5,8 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System;
 
-public class Card : MonoBehaviour
-{
-    public GameObject cardFront;
-    public GameObject cardBack;
 
-    public bool isCardBack = false;
-    public void SetCardBack(bool b)
-    {
-        isCardBack = b;
-        if (b) { cardBack.transform.SetAsLastSibling(); }
-        else { cardBack.transform.SetAsFirstSibling(); }
-    }
-    public void FlipCard()
-    {
-        SetCardBack(!isCardBack);
-    }
-
-    //hands need to be able to set all these aspects of the cards position
-    public void SetCard(Vector3 pos, Vector3 rot, float scale, int index, bool isCardBack)
-    {
-        SetPosition(pos);
-        SetRotation(rot);
-        SetScale(scale);
-        SetIndex(index);
-        SetCardBack(isCardBack);
-    }
-    //abstract extra needs in here
-    protected virtual void SetPosition(Vector3 pos) { transform.localPosition = pos; }
-    protected virtual void SetRotation(Vector3 rot) { transform.localEulerAngles = rot; }
-    protected virtual void SetScale(float scale) { transform.localScale = Vector3.one * scale; }
-    protected virtual void SetIndex(int index) { transform.SetSiblingIndex(index); }
-}
-
-public class PlayerCard : Card,
+public class PlayerCard_10Point : Abstract_Card_10Point,
                     IPointerEnterHandler,
                     IPointerExitHandler,
                     IBeginDragHandler,
@@ -47,9 +15,6 @@ public class PlayerCard : Card,
                     IPointerDownHandler
 {   
     public GameObject highlight;
-    public TextMeshProUGUI text;
-    public int value;
-
     public Vector3 originalPosition;
     public Vector3 inflatePosition;
     public Vector3 originalRotation;
@@ -59,13 +24,6 @@ public class PlayerCard : Card,
 
     //notify of card movement, player
     public static event Action<GameObject> MOVED;
-   
-    private void OnEnable()
-    {        
-        //set values...
-        value = UnityEngine.Random.Range(1, 4);
-        text.text = value.ToString();
-    }
 
     protected override void SetPosition(Vector3 pos) { originalPosition = pos; transform.localPosition = originalPosition; }
     protected override void SetRotation(Vector3 rot) { originalRotation = rot; transform.localEulerAngles = originalRotation; }
@@ -99,7 +57,7 @@ public class PlayerCard : Card,
     {
         transform.eulerAngles = Vector3.zero;
         canvasScaleFactor = GamePlayStatics.CANVASSCALEFACTOR;
-        Debug.Log("CSF: " + canvasScaleFactor);
+        //Debug.Log("CSF: " + canvasScaleFactor);
         isDrag = true;
     }
 
