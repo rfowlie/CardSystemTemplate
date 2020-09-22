@@ -22,6 +22,12 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
     public Vector3 inflateScale;
     public int originalIndex;
 
+    private void OnDisable()
+    {
+        isDrag = false;
+        transform.localScale = originalScale;
+    }
+
     //notify of card movement, player
     public static event Action<GameObject> MOVED;
 
@@ -36,8 +42,12 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
         if(!isDrag)
         {
             highlight.SetActive(true);
+            Vector3 temp = new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
+            Debug.Log("Temp: " + temp);
+            GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0f);
+            transform.localPosition = temp;
+            transform.localEulerAngles = Vector3.zero;
             transform.localScale += inflateScale;
-            transform.localPosition += inflatePosition;
             transform.SetAsLastSibling();
         }        
     }
@@ -47,7 +57,9 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
         if(!isDrag)
         {
             highlight.SetActive(false);
+            GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
             transform.localPosition = originalPosition;
+            transform.localEulerAngles = originalRotation;
             transform.localScale = originalScale;
             transform.SetSiblingIndex(originalIndex);
         }        
@@ -55,19 +67,28 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        transform.eulerAngles = Vector3.zero;
-        canvasScaleFactor = GamePlayStatics.CANVASSCALEFACTOR;
-        //Debug.Log("CSF: " + canvasScaleFactor);
-        isDrag = true;
+        if(!isDrag)
+        {
+            //reset pivot
+            GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+            //adjust position so doesn't look weird...
+            transform.localPosition += new Vector3(0f, GetComponent<RectTransform>().rect.height * 0.5f, 0f);
+
+            canvasScaleFactor = GamePlayStatics.CANVASSCALEFACTOR;
+            isDrag = true;
+        }
     }
 
     private bool isDrag = false;
     private float canvasScaleFactor;
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 move = eventData.delta / canvasScaleFactor;
-        transform.localPosition += new Vector3(move.x, move.y, 0f);
-        //GetComponent<RectTransform>().anchoredPosition += eventData.delta / canvasScaleFactor;
+        if(isDrag)
+        {
+            Vector2 move = eventData.delta / canvasScaleFactor;
+            transform.localPosition += new Vector3(move.x, move.y, 0f);
+            //GetComponent<RectTransform>().anchoredPosition += eventData.delta / canvasScaleFactor;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -75,13 +96,29 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
         //also turn off highlights
         highlight.SetActive(false);
         transform.localScale = originalScale;
-        transform.localEulerAngles = originalRotation;
+        //transform.localEulerAngles = originalRotation;
         MOVED(gameObject);
 
-        isDrag = false;
+        //isDrag = false;
+        StartCoroutine(CardReset());
     }
     public void OnPointerDown(PointerEventData eventData)
     {
         transform.SetAsLastSibling();
+    }
+
+    //gradually return to normal card shape
+    public IEnumerator CardReset()
+    {
+        Vector3 currentScale = transform.localScale;
+        float count = 0f;
+        while(count < 0.5f)
+        {
+            transform.localScale = Vector3.Lerp(currentScale, originalScale, count / 0.5f);
+            count += Time.deltaTime;
+            yield return null;
+        }
+
+        isDrag = false;
     }
 }

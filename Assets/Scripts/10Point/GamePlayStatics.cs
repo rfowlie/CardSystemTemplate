@@ -28,8 +28,5 @@ public class GamePlayStatics : MonoBehaviour
    
     //variables
     public static State CURRENTSTATE { get; private set; }
-    public static float CANVASSCALEFACTOR { get; private set; }
-    
+    public static float CANVASSCALEFACTOR { get; private set; }    
 }
-
-public enum State { NONE, PLAYER, AI, ANIMATION, WAIT, GAMEOVER }

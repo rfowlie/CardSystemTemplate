@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+public enum State { NONE, PLAYER, AI, ANIMATION, WAIT, GAMEOVER, MAINMENU }
+
 
 public class GameManager_10Point : MonoBehaviour
 {
@@ -18,11 +20,14 @@ public class GameManager_10Point : MonoBehaviour
     public Transform pile;
     public TextMeshProUGUI pileText;
     public int pointsMax = 3;
+    public void ChangePointsMax() => pointsMax = int.Parse(inputField.text);
+    public TMP_InputField inputField;
     public int handSizeMax = 5;
     private int pileCount = 0;
     public int pileMax = 10;
     public float moveToPileSpeed = 0.5f;
     public Transform gameOverUI;
+    public Transform mainMenuUI;
     [Space]
     [Header("Player")]
     public Transform playerHand;
@@ -40,11 +45,11 @@ public class GameManager_10Point : MonoBehaviour
     public float aiWaitTime = 0.6f;
 
 
-
     private void OnEnable()
     {
         PlayerCard_10Point.MOVED += (GameObject card) =>
         {
+            //must be player turn and card must be in play
             if (CurrentState == State.PLAYER && CheckInPlay(card))
             {
                 //remove card from playerHand card list
@@ -69,7 +74,7 @@ public class GameManager_10Point : MonoBehaviour
         playerHandController = playerHand.GetComponent<HandController>();
         aiHandController = aiHand.GetComponent<HandController>();
 
-        ResetGame();
+        CurrentState = State.MAINMENU;
     }
     private void Update()
     {
@@ -84,6 +89,10 @@ public class GameManager_10Point : MonoBehaviour
 
     public void ResetGame()
     {
+        //update rounds
+        ChangePointsMax();
+        //remove main menu screen
+        mainMenuUI.gameObject.SetActive(false);
         //remove game over screen
         gameOverUI.gameObject.SetActive(false);
 
@@ -125,7 +134,9 @@ public class GameManager_10Point : MonoBehaviour
         //pause before playing card to appear thinking
         yield return new WaitForSecondsRealtime(waitTime);
 
-        //play random card...
+        //different levels of difficulty
+        //easy - determine if pile + one of ai cards + one of player cards = 9
+        //random card selection
         GameObject card = aiHandController.GetCard(Random.Range(0, aiHandController.hand.Count));
 
         c = null;
@@ -217,43 +228,22 @@ public class GameManager_10Point : MonoBehaviour
         card.transform.eulerAngles = Vector3.zero;
         //get positions
         Vector3 currentPos = card.transform.localPosition;
-        Vector3 currentRot = card.transform.localEulerAngles;
-        Vector3 endRot = new Vector3(0f, 180f, 0f);
-        float rotSpeed = 0.6f;
-
-        float count = 0f;
-        while (count / moveToPileSpeed < 0.3f)
-        {
-            //rotation
-            card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
-
-            //Zero because now child of parent
-            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
-            count += Time.deltaTime;
-            yield return null;
-        }
-
-        if(card.GetComponent<Abstract_Card>().isCardBack)
+        //flip if backwards
+        if (card.GetComponent<Abstract_Card>().isCardBack)
         {
             card.GetComponent<Abstract_Card>().FlipCard();
         }
 
-        currentRot = new Vector3(0f, -90f, 0f); 
-        endRot = Vector3.zero;
-
-        while (count < moveToPileSpeed)
+        float count = 0f;
+        while(count < moveToPileSpeed)
         {
-            //rotation
-            card.transform.localEulerAngles = Vector3.Lerp(currentRot, endRot, count / rotSpeed);
-
-            //Zero because now child of parent
             card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
             count += Time.deltaTime;
             yield return null;
         }
 
         //when get to pile, set inactive increment pile???
-        if(isPlayerTurn) { playerCardPool.Return(card); }
+        if (isPlayerTurn) { playerCardPool.Return(card); }
         else { aiCardPool.Return(card); }        
         
         UpdatePile(card.GetComponent<Abstract_Card_10Point>().value);
