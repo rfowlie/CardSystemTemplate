@@ -34,7 +34,7 @@ public class MatController : MonoBehaviour
         if (tokens.Count < 1) { return; }
         if (tokens.Count == 1)
         {
-            tokens[0].GetComponent<Abstract_Card>().SetCard(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
+            tokens[0].GetComponent<Abstract_Card>().InitialSet(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
             return;
         }
 

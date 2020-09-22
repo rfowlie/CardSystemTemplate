@@ -351,6 +351,9 @@ MonoBehaviour:
   originalScale: {x: 0, y: 0, z: 0}
   inflateScale: {x: 0.2, y: 0.2, z: 0.2}
   originalIndex: 0
+  isBusy: 0
+  smoothMoveSpeed: 0.4
+  wobble: 4
 --- !u!1 &5502196415724158531
 GameObject:
   m_ObjectHideFlags: 0

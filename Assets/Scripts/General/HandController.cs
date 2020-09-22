@@ -24,7 +24,7 @@ public class HandController : MonoBehaviour
         if(hand.Count < 1) { return; }
         if(hand.Count == 1)
         {
-            hand[0].GetComponent<Abstract_Card>().SetCard(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
+            hand[0].GetComponent<Abstract_Card>().InitialSet(Vector3.zero, Vector3.zero, scaling, 0, cardBack);
             return;
         }
 
@@ -40,7 +40,7 @@ public class HandController : MonoBehaviour
             //set transform
             Vector3 pos = new Vector3(widthStart + widthSpacing * i, Mathf.Abs(i - middleCard) * spacingY, 0f);
             Vector3 rot = new Vector3(0f, 0f, (middleCard - i) * rotation);
-            hand[i].GetComponent<Abstract_Card>().SetCard(pos, rot, scaling, i, cardBack);
+            hand[i].GetComponent<Abstract_Card>().InitialSet(pos, rot, scaling, i, cardBack);
         }
     }
 
@@ -73,6 +73,9 @@ public class HandController : MonoBehaviour
     {
         hand.Add(card);
         card.transform.SetParent(transform);
+        card.transform.localPosition = Vector3.zero;
+        card.transform.localEulerAngles = Vector3.zero;
+        card.transform.localScale = Vector3.one;
         card.transform.SetAsLastSibling();
         Position();
     }
@@ -84,6 +87,9 @@ public class HandController : MonoBehaviour
         {
             hand.Add(cards[i]);
             cards[i].transform.SetParent(transform);
+            cards[i].transform.localPosition = Vector3.zero;
+            cards[i].transform.localEulerAngles = Vector3.zero;
+            cards[i].transform.localScale = Vector3.one * scaling;
             cards[i].transform.SetAsLastSibling();
         }
 

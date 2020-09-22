@@ -20,7 +20,7 @@ public abstract class Abstract_Card : MonoBehaviour
     }
 
     //hands need to be able to set all these aspects of the cards position
-    public void SetCard(Vector3 pos, Vector3 rot, float scale, int index, bool isCardBack)
+    public virtual void InitialSet(Vector3 pos, Vector3 rot, float scale, int index, bool isCardBack)
     {
         SetPosition(pos);
         SetRotation(rot);

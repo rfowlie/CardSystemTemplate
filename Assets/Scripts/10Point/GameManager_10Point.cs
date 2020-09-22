@@ -87,6 +87,12 @@ public class GameManager_10Point : MonoBehaviour
         }
     }
 
+    public void ReturnToMainMenu()
+    {
+        gameOverUI.gameObject.SetActive(false);
+        mainMenuUI.gameObject.SetActive(true);
+    }
+
     public void ResetGame()
     {
         //update rounds
@@ -206,11 +212,11 @@ public class GameManager_10Point : MonoBehaviour
     //check if card is InPlay or should go back to hand    
     private bool CheckInPlay(GameObject card)
     {
-        float c = card.GetComponent<RectTransform>().anchoredPosition.y;
-        float p = pile.GetComponent<RectTransform>().anchoredPosition.y;
-        float ph = playerHand.GetComponent<RectTransform>().anchoredPosition.y;
-        //Debug.Log("Distance: " + Mathf.Abs(p - ph) / 2f); 
-        return c > Mathf.Abs(p - ph) / 2f;
+        float cardToPile = pile.position.y - card.transform.position.y;
+        float handToPile = pile.position.y - playerHand.position.y;
+        //Debug.Log("Card to Pile: " + cardToPile);
+        //Debug.Log("Hand to Pile: " + handToPile);
+        return cardToPile < handToPile / 2f;
     }
 
 
@@ -220,14 +226,20 @@ public class GameManager_10Point : MonoBehaviour
     {
         CurrentState = State.ANIMATION;
 
+        //SHOULD HAVE THIS GIVE CARD TO PILE AND PILE CALL SMOOTH MOVE ON CARD!!
+        //NO, KEEP HERE TO CONTROL GAME FLOW...
+
+
         //set card as child to pile
         card.transform.SetParent(pile);
-        //set sibling index
+        //set sibling to last so card goes overtop of pile
         card.transform.SetAsLastSibling();
-        //set rotation to normal
-        card.transform.eulerAngles = Vector3.zero;
+
         //get positions
         Vector3 currentPos = card.transform.localPosition;
+        //get rotation
+        Quaternion currentRot = card.transform.rotation;
+
         //flip if backwards
         if (card.GetComponent<Abstract_Card>().isCardBack)
         {
@@ -238,6 +250,7 @@ public class GameManager_10Point : MonoBehaviour
         while(count < moveToPileSpeed)
         {
             card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
+            card.transform.rotation = Quaternion.Lerp(currentRot, Quaternion.identity, count / moveToPileSpeed);
             count += Time.deltaTime;
             yield return null;
         }
@@ -246,6 +259,7 @@ public class GameManager_10Point : MonoBehaviour
         if (isPlayerTurn) { playerCardPool.Return(card); }
         else { aiCardPool.Return(card); }        
         
+        //awkward...
         UpdatePile(card.GetComponent<Abstract_Card_10Point>().value);
         UpdateGameState();
     }
