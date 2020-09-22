@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CardOutline
-  m_Shader: {fileID: 4800000, guid: 656ca70af6161c94f80958b7aab61219, type: 3}
+  m_Name: Vortex
+  m_Shader: {fileID: 4800000, guid: 5c055029c58b94041a8ee161f34703a6, type: 3}
   m_ShaderKeywords: 
-  m_LightmapFlags: 0
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -20,17 +20,20 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: fce461027a69b2b47bc8e5e3b9ff1ce0, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _texcoord:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 881c304491028ea48b5027ac6c62cf73, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _OpacityThreshold: 0.5
-    - _Sharpness: 0.68
-    - __dirty: 0
+    - _AlphaCutoff: 0.5
+    - _High: 0.55
+    - _Low: 0.06
+    - _OpacityBlend: 0.53
+    - _OpacityBlend1: 0.87
+    - _OpacityCutoff: 1
+    - _OpacityCutoff1: 1.94
+    - _OpacityGradiant: 0.01
+    - _Speed: -0.88
+    - _Swirl: 22.1
     m_Colors:
-    - _Colour: {r: 1, g: 0.66732794, b: 0.48584908, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

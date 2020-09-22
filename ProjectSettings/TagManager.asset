@@ -50,6 +50,6 @@ TagManager:
   - name: GameOver
     uniqueID: 1206386357
     locked: 0
-  - name: Menu
+  - name: MainMenu
     uniqueID: 839900607
     locked: 0

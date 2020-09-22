@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Outline
-  m_Shader: {fileID: 4800000, guid: 4027017aa677ba04bba1ba6054bf9ef2, type: 3}
+  m_Name: Rim2
+  m_Shader: {fileID: 4800000, guid: f012440057fe9bf43b6c4742814aec3c, type: 3}
   m_ShaderKeywords: 
-  m_LightmapFlags: 0
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: c1953032541593f43a64218bf209d655, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6b110fd1de25a2c4f83a0957b1266a55, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -28,7 +28,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - __dirty: 0
+    - _AlphaCutoff: 0.5
+    - _EIntensity: 20
+    - _Fade: 1.44
+    - _Gradiant: 0.13
+    - _ThresholdLower: 0.891
     m_Colors:
-    - _Colour: {r: 0.6462121, g: 0, b: 1, a: 0}
+    - _EColour: {r: 0, g: 1, b: 0.08543229, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

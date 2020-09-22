@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: cf562f50328e92f4c823e9afb922392c, type: 2}
+  m_Material: {fileID: 2100000, guid: f1a3e456e30d5c24d80054e3dea0ed9f, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -276,7 +276,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fce461027a69b2b47bc8e5e3b9ff1ce0, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -318,7 +318,7 @@ RectTransform:
   - {fileID: 5502196413663560666}
   - {fileID: 5502196414705217418}
   - {fileID: 8621870580082988796}
-  - {fileID: 199618451758559637}
+  - {fileID: 5091326174579507633}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -341,17 +341,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardFront: {fileID: 5502196413663560665}
   cardBack: {fileID: 5502196415724158531}
-  highlight: {fileID: 7076077685048633165}
+  isCardBack: 0
   text: {fileID: 6651936260498971273}
-  rect: {fileID: 0}
   value: 0
+  highlight: {fileID: 6724338091903841587}
   originalPosition: {x: 0, y: 0, z: 0}
   inflatePosition: {x: 0, y: 20, z: 0}
   originalRotation: {x: 0, y: 0, z: 0}
   originalScale: {x: 0, y: 0, z: 0}
   inflateScale: {x: 0.2, y: 0.2, z: 0.2}
   originalIndex: 0
-  isCardBack: 0
 --- !u!1 &5502196415724158531
 GameObject:
   m_ObjectHideFlags: 0
@@ -427,7 +426,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &7076077685048633165
+--- !u!1 &6724338091903841587
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -435,9 +434,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 199618451758559637}
-  - component: {fileID: 7159781979491531503}
-  - component: {fileID: 2288982921568592290}
+  - component: {fileID: 5091326174579507633}
+  - component: {fileID: 1682907912346479585}
+  - component: {fileID: 8576202353707181442}
   m_Layer: 5
   m_Name: Highlight
   m_TagString: Untagged
@@ -445,46 +444,46 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!224 &199618451758559637
+--- !u!224 &5091326174579507633
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076077685048633165}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_GameObject: {fileID: 6724338091903841587}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5502196415639929936}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &7159781979491531503
+--- !u!222 &1682907912346479585
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076077685048633165}
+  m_GameObject: {fileID: 6724338091903841587}
   m_CullTransparentMesh: 0
---- !u!114 &2288982921568592290
+--- !u!114 &8576202353707181442
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7076077685048633165}
+  m_GameObject: {fileID: 6724338091903841587}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: a7c8908a8faa28d428c747ef312d62ca, type: 2}
+  m_Material: {fileID: 2100000, guid: 0772507a6fce11c488c9e935158a5702, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

@@ -43,7 +43,7 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
         {
             highlight.SetActive(true);
             Vector3 temp = new Vector3(transform.localPosition.x, 0f, transform.localPosition.z);
-            Debug.Log("Temp: " + temp);
+            //Debug.Log("Temp: " + temp);
             GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0f);
             transform.localPosition = temp;
             transform.localEulerAngles = Vector3.zero;
