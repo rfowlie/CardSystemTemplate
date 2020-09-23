@@ -123,9 +123,9 @@ public class PlayerCard_10Point : Abstract_Card_10Point,
             //move card perfectly along with mouse
             Vector2 move = eventData.delta / canvasScaleFactor;
             transform.localPosition += new Vector3(move.x, move.y, 0f);
-            float x = Mathf.Clamp(eventData.delta.y, -wobbleClamp, wobbleClamp);
-            float y = Mathf.Clamp(eventData.delta.x, -wobbleClamp, wobbleClamp);
-            transform.localEulerAngles = new Vector3(x * wobble, -y * wobble, 0f);
+            float x = Mathf.Clamp(eventData.delta.y * wobble, -wobbleClamp, wobbleClamp);
+            float y = Mathf.Clamp(eventData.delta.x * wobble, -wobbleClamp, wobbleClamp);
+            transform.localEulerAngles = new Vector3(x, -y, 0f);
         }
     }
 

@@ -11,8 +11,10 @@ public abstract class Abstract_Card : MonoBehaviour
     public void SetCardBack(bool b)
     {
         isCardBack = b;
-        if (b) { cardBack.transform.SetAsLastSibling(); }
-        else { cardBack.transform.SetAsFirstSibling(); }
+        //if (b) { cardBack.transform.SetAsLastSibling(); }
+        //else { cardBack.transform.SetAsFirstSibling(); }
+        if (b) { cardBack.SetActive(true); }
+        else { cardBack.SetActive(false); }
     }
     public void FlipCard()
     {
