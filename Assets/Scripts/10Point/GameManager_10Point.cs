@@ -18,6 +18,7 @@ public class GameManager_10Point : MonoBehaviour
     [Header("Game")]
     public Canvas canvas;
     public Transform pile;
+    public Transform show;
     public TextMeshProUGUI pileText;
     public int pointsMax = 3;
     public void ChangePointsMax() => pointsMax = int.Parse(inputField.text);
@@ -25,7 +26,8 @@ public class GameManager_10Point : MonoBehaviour
     public int handSizeMax = 5;
     private int pileCount = 0;
     public int pileMax = 10;
-    public float moveToPileSpeed = 0.5f;
+    public float pileSpeed = 0.5f;
+    public float showSpeed = 1f;
     public Transform gameOverUI;
     public Transform mainMenuUI;
     [Space]
@@ -57,7 +59,7 @@ public class GameManager_10Point : MonoBehaviour
 
                 //call coroutine to move card to pile
                 c = null;
-                c = StartCoroutine(MoveToPile(card));
+                c = StartCoroutine(CardAnimation(card));
             }
             else
             {
@@ -146,7 +148,7 @@ public class GameManager_10Point : MonoBehaviour
         GameObject card = aiHandController.GetCard(Random.Range(0, aiHandController.hand.Count));
 
         c = null;
-        c = StartCoroutine(MoveToPile(card));
+        c = StartCoroutine(CardAnimation(card));
     }
     
     //update the piles value as well as points values
@@ -222,36 +224,65 @@ public class GameManager_10Point : MonoBehaviour
 
     //AWKWARD RIGHT NOW AS JUST FIGURING IT OUT    
     private Coroutine c = null;
-    IEnumerator MoveToPile(GameObject card)
+    IEnumerator CardAnimation(GameObject card)
     {
+        //set state so nothing else will fire
         CurrentState = State.ANIMATION;
 
-        //SHOULD HAVE THIS GIVE CARD TO PILE AND PILE CALL SMOOTH MOVE ON CARD!!
-        //NO, KEEP HERE TO CONTROL GAME FLOW...
-
-
-        //set card as child to pile
-        card.transform.SetParent(pile);
-        //set sibling to last so card goes overtop of pile
-        card.transform.SetAsLastSibling();
-
-        //get positions
-        Vector3 currentPos = card.transform.localPosition;
-        //get rotation
-        Quaternion currentRot = card.transform.rotation;
+        //FIRST SEND TO SHOW POSITION THEN TO PILE
 
         //flip if backwards
         if (card.GetComponent<Abstract_Card>().isCardBack)
         {
             card.GetComponent<Abstract_Card>().FlipCard();
         }
+        //set card as child to show
+        card.transform.SetParent(show);
+        //set sibling to last so card is on top
+        card.transform.SetAsLastSibling();
+
+        //get position in relation to new parent
+        Vector3 currentPos = card.transform.localPosition;
+        //get rotation
+        Quaternion currentRot = card.transform.rotation;
+        //get scale so we can adjust it
+        Vector3 currentScale = card.transform.localScale;
+        Vector3 nextScale = Vector3.one * 1.5f;
 
         float count = 0f;
-        while(count < moveToPileSpeed)
+        float add = 0f;
+        Vector3 handDistance = show.transform.InverseTransformPoint(playerHand.position);
+        Debug.Log("hand distance: " + handDistance + " card distance: " + currentPos);
+        float calcSpeed = (currentPos.magnitude / handDistance.magnitude) * showSpeed;
+        Debug.Log("Calc: " + calcSpeed);
+        while(count < calcSpeed)
         {
-            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / moveToPileSpeed);
-            card.transform.rotation = Quaternion.Lerp(currentRot, Quaternion.identity, count / moveToPileSpeed);
+            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / calcSpeed);
+            card.transform.rotation = Quaternion.Lerp(currentRot, Quaternion.identity, count / calcSpeed);
+            card.transform.localScale = Vector3.Lerp(currentScale, nextScale, count / calcSpeed);
             count += Time.deltaTime;
+            yield return null;
+        }
+
+        //set card as child to pile
+        card.transform.SetParent(pile);
+        //set sibling to last so card goes overtop of pile
+        card.transform.SetAsLastSibling();
+        //get positions
+        currentPos = card.transform.localPosition;
+        //get scale so we can adjust it
+        currentScale = card.transform.localScale;
+        nextScale = Vector3.one;
+
+        count = 0f;
+        while(count < pileSpeed)
+        {
+            card.transform.localPosition = Vector3.Lerp(currentPos, Vector3.zero, count / pileSpeed);
+            //card.transform.rotation = Quaternion.Lerp(currentRot, Quaternion.identity, count / moveToPileSpeed);
+            card.transform.localScale = Vector3.Lerp(currentScale, nextScale, count / pileSpeed);
+            count += Time.deltaTime;
+            add += Time.deltaTime;
+            count += add;
             yield return null;
         }
 
