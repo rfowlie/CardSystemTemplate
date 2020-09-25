@@ -87,6 +87,19 @@ public class GameManager_10Point : MonoBehaviour
             c = null;
             c = StartCoroutine(AITurn(aiWaitTime));
         }
+
+        //exit
+        if(Input.GetKeyUp(KeyCode.Escape))
+        {
+            //return to main menu
+            CurrentState = State.NONE;
+            mainMenuUI.gameObject.SetActive(true);
+        }
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
     }
 
     public void ReturnToMainMenu()
@@ -221,8 +234,8 @@ public class GameManager_10Point : MonoBehaviour
         return cardToPile < handToPile / 2f;
     }
 
-
-    //AWKWARD RIGHT NOW AS JUST FIGURING IT OUT    
+    public float animationInflate = 1.5f;
+    
     private Coroutine c = null;
     IEnumerator CardAnimation(GameObject card)
     {
@@ -247,7 +260,7 @@ public class GameManager_10Point : MonoBehaviour
         Quaternion currentRot = card.transform.rotation;
         //get scale so we can adjust it
         Vector3 currentScale = card.transform.localScale;
-        Vector3 nextScale = Vector3.one * 1.5f;
+        Vector3 nextScale = currentScale * animationInflate;
 
         float count = 0f;
         float add = 0f;
